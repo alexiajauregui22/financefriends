@@ -36,6 +36,7 @@
       <a href="#simular"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/></svg>¿Y si…?</a>
       <a href="#copiloto"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Copiloto</a>
       <a href="#historial"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Historial y ajustes</a>
+      <a href="#finanzas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Mis finanzas</a>
       <button class="btn" type="button" id="railAdd"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Registrar gasto</button>
       <p class="foot">Tus datos viven solo en este navegador.</p>
     </nav>
@@ -90,7 +91,7 @@
           <h2 class="serif title" data-split>¿Cómo te <em>llamamos?</em></h2>
           <label class="field" for="o-name"><span>Tu nombre</span><input id="o-name" data-bind="name" autocomplete="given-name"></label>
           <div class="row2">
-            <label class="field" for="o-age"><span>Edad</span><input id="o-age" data-bind="age" inputmode="numeric"></label>
+            <label class="field" for="o-bday"><span>Cumpleaños</span><input id="o-bday" data-bind="birthday" type="date"></label>
             <label class="field" for="o-country"><span>País</span>
               <select id="o-country" data-bind="country"><option>Perú</option><option>México</option><option>Colombia</option><option>Chile</option><option>Argentina</option><option>Ecuador</option><option>España</option><option>Otro</option></select>
             </label>
@@ -105,6 +106,13 @@
           <h2 class="serif title" data-split>Lo que <em>entra</em> cada mes</h2>
           <div id="incomeList" style="display:flex;flex-direction:column;gap:14px"></div>
           <div class="total"><span>Ingreso mensual promedio</span><strong id="incTotal">—</strong></div>
+          <div class="field"><span>¿Qué día del mes cobras?</span>
+            <div class="row2" style="align-items:end;margin-top:4px">
+              <label class="sr" for="o-payday">Día de cobro</label><input id="o-payday" inputmode="numeric" placeholder="Ej. 15">
+              <button type="button" class="chip" id="payFin">Fin de mes</button>
+            </div>
+          </div>
+          <p class="fine">Si cobras en fechas distintas, elige fin de mes. Contaré tu presupuesto hasta ese día.</p>
         </div>
 
         <div class="step" data-step="3" hidden>
@@ -118,16 +126,32 @@
         <div class="step" data-step="4" hidden>
           <p class="hand">lo que se paga sí o sí</p>
           <h2 class="serif title" data-split>Tus gastos <em>fijos</em></h2>
+          <p class="lead" style="margin-top:-8px">Toca los que pagas. Si los pagas apenas cobras, deja el día vacío.</p>
+          <div class="fix head" aria-hidden="true"><span></span><span>Monto</span><span>Día</span></div>
           <div id="fixList"></div>
           <div class="row2" style="align-items:end">
             <label class="field" for="newFix"><span>Agregar otro</span><input id="newFix" placeholder="Ej. Seguro"></label>
             <button class="chip add" type="button" id="addFix">+ Agregar</button>
           </div>
           <div class="total"><span>Compromisos del mes</span><strong id="fixTotal">—</strong></div>
-          <label class="field" for="o-spent"><span>Y en el día a día, ¿cuánto llevas gastado este mes? (aproximado, sin contar los fijos)</span><input id="o-spent" inputmode="decimal" placeholder="0"></label>
         </div>
 
         <div class="step" data-step="5" hidden>
+          <p class="hand">empezamos desde hoy</p>
+          <h2 class="serif title" data-split>¿Cuánto dinero <em>tienes hoy?</em></h2>
+          <p class="lead" style="margin-top:-8px">No importa lo que gastaste antes. Mira tu billetera y tus apps, escribe lo que hay en cada lugar y desde hoy anotas todo, hasta el Yape del bus.</p>
+          <h3 class="grp">Para gastar<span>lo que usas en el día a día</span></h3>
+          <div id="accSpend"></div>
+          <h3 class="grp">Ahorros<span>lo que no se toca para el día a día</span></h3>
+          <div id="accSave"></div>
+          <div class="row2" style="align-items:end">
+            <label class="field" for="newAcc"><span>Agregar otra cuenta</span><input id="newAcc" placeholder="Ej. Interbank, CTS"></label>
+            <div class="chips"><button class="chip add" type="button" data-addacc="gasto">+ Gasto</button><button class="chip add" type="button" data-addacc="ahorro">+ Ahorro</button></div>
+          </div>
+          <div class="row2 total"><div><span>Para gastar</span><strong id="accSpendT">—</strong></div><div><span>Ahorros</span><strong id="accSaveT">—</strong></div></div>
+        </div>
+
+        <div class="step" data-step="6" hidden>
           <p class="hand">en qué se te va el alma</p>
           <h2 class="serif title" data-split>Elige tus <em>categorías</em></h2>
           <p class="lead" style="margin-top:-8px">Sin etiquetas de hombre o mujer: tú decides qué es tuyo. Aparecerán primero al registrar un gasto.</p>
@@ -138,7 +162,7 @@
           </div>
         </div>
 
-        <div class="step" data-step="6" hidden>
+        <div class="step" data-step="7" hidden>
           <p class="hand">lo que te hace levantarte</p>
           <h2 class="serif title" data-split>Tu <em>sueño grande</em></h2>
           <div class="presets" id="presets"></div>
@@ -151,7 +175,7 @@
           <div class="monthly"><span>Para llegar a tiempo, aparta</span><strong id="gMonthly">—</strong><span id="gMonths"></span></div>
         </div>
 
-        <div class="step" data-step="7" hidden>
+        <div class="step" data-step="8" hidden>
           <p class="hand">la pregunta honesta</p>
           <h2 class="serif title" data-split>Cuando ves algo que te <em>encanta…</em></h2>
           <div id="styles" style="display:flex;flex-direction:column;gap:10px"></div>
@@ -233,6 +257,13 @@
         </form>
         <p class="fine">Respuestas de ejemplo calculadas con tus datos. La IA real se conecta desde el backend.</p>
       </section>
+      <!-- 10 · MIS FINANZAS -->
+      <section class="screen" data-screen="finanzas" aria-labelledby="t-fin">
+        <p class="hand kicker">todo lo tuyo, editable</p>
+        <h1 id="t-fin" class="serif title" data-split>Mis <em>finanzas</em></h1>
+        <div class="fin-grid" id="finBody"></div>
+      </section>
+
       <!-- 9 · HISTORIAL -->
       <section class="screen" data-screen="historial" aria-labelledby="t-hist">
         <p class="hand kicker">tu bitácora</p>
@@ -255,7 +286,7 @@
         <div class="sec-t"><h2>Tus datos</h2></div>
         <p class="fine" style="font-size:14px">Todo se guarda solo en este navegador: nadie más lo ve, ni siquiera yo. Si borras los datos del navegador o cambias de teléfono, se pierde, así que descarga un respaldo de vez en cuando.</p>
         <div class="chips">
-          <a class="chip" href="#perfil">Editar mi perfil</a>
+          <a class="chip" href="#finanzas">Mis finanzas</a>
           <button class="chip" type="button" id="exportData">Descargar respaldo</button>
           <label class="chip" for="importData">Importar respaldo<input type="file" id="importData" accept="application/json,.json" class="sr"></label>
           <button class="chip" type="button" id="loadSample">Ver con datos de ejemplo</button>
