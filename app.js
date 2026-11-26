@@ -301,6 +301,7 @@ function renderHoy() {
     : nextCard ? `${esc(nextCard.bank)} cierra el día ${num(nextCard.close)}. Una compra grande justo después del cierre te da más días para pagarla.` : 'Vas bien. Lo que no gastes hoy se suma a tus próximos días.';
   $('#hoyBody').innerHTML = `
     <header class="hoy-head" data-reveal><p class="hand">${greet()}, ${esc(S.name || 'alma libre')}</p><p class="date">${d} de ${MONTHS[M]}</p></header>
+    <div class="hoy-grid"><div class="col col-a">
     <div class="sunwrap" data-reveal>
       <svg class="ring" viewBox="0 0 220 220" aria-hidden="true"><circle cx="110" cy="110" r="${R}" fill="none" stroke="rgba(233,225,246,.14)" stroke-width="5"/>
         <circle id="ringUse" cx="110" cy="110" r="${R}" fill="none" stroke="${over ? '#B9A6E8' : '#FFC6A8'}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${C * used} ${C}"/></svg>
@@ -311,6 +312,7 @@ function renderHoy() {
       ? `Gastaste <b>${money(c.todaySpent)}</b> y te excediste <b>${money(-c.restToday)}</b>. ${c.tomorrow !== null ? `Mañana tu presupuesto será <b>${money(c.tomorrow)}</b>.` : 'Mañana empieza un mes nuevo.'} El cielo se despeja otra vez.`
       : `Llevas <b>${money(c.todaySpent)}</b> hoy. Lo que no uses se reparte en tus próximos días.`}</p>
     <p class="flowline" data-reveal>Este mes entran <b>${money(c.income)}</b>, ya tienen dueño <b>${money(c.fixed)}</b> y te quedan <b>${money(c.avail)}</b> disponibles. De eso, <b>${money(c.contrib)}</b> se van a tu sueño.</p>
+    </div><div class="col col-b">
     ${g ? `<div class="sec-t"><h2>Tu sueño principal</h2><a href="#metas">Ver ruta</a></div>
     <a class="arch" href="#metas" style="--p:${g.pct.toFixed(0)}%" data-reveal><span class="pct">${g.pct.toFixed(0)}%</span><span class="kind">${esc(g.kind)}</span><h3>${esc(g.name)}</h3>
       <div class="nums"><span>Ahorrado ${money(num(g.saved))} de ${money(num(g.cost))}</span><span>${money(g.monthly)}/mes</span></div></a>` : ''}
@@ -321,7 +323,8 @@ function renderHoy() {
       : '<p class="empty">nada todavía. un día liviano.</p>'}</div>
     <a class="bubble" href="#copiloto" data-reveal><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC6A8" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3l2 5.5 5.5 2-5.5 2L12 18l-2-5.5L4.5 10.5l5.5-2z"/></svg><span>${tip}</span></a>
     <a class="bubble" href="#historial" style="background:rgba(233,225,246,.07)" data-reveal><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC6A8" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Historial, diario de prueba y respaldo de tus datos</span></a>
-    ${S.sample ? '<p class="fine">Estás viendo datos de ejemplo. Reinicia para usar los tuyos.</p>' : ''}`;
+    ${S.sample ? '<p class="fine">Estás viendo datos de ejemplo. Borra todo desde Historial y ajustes para usar los tuyos.</p>' : ''}
+    </div></div>`;
   setClear(over ? .55 : 1);
   countUp($('#sunNum'), Math.abs(c.restToday));
   drawRing($('#ringUse'), used);
@@ -442,6 +445,7 @@ function preview() {
   $('#exPreview').textContent = !v ? `Hoy aún tienes ${money(Math.max(0, c.restToday))}.` : rest >= 0 ? `Después de esto te quedan ${money(rest)} para hoy.` : `Con esto te pasas ${money(-rest)} hoy. Mañana se ajusta solo.`;
 }
 $('#fab').addEventListener('click', openSheet);
+$('#railAdd').addEventListener('click', openSheet);
 $('#hoyBody').addEventListener('click', e => { if (e.target.closest('[data-open-sheet]')) openSheet(); });
 $('#scrim').addEventListener('click', closeSheet);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#sheet').classList.contains('on')) closeSheet(); });
@@ -478,7 +482,6 @@ function armReset(btn, label) {
     setTimeout(() => { btn.textContent = label; delete btn.dataset.armed; }, 4000);
   });
 }
-armReset($('#resetDemo'), 'Borrar todo y empezar de cero');
 armReset($('#wipeData'), 'Borrar todo');
 $('#loadSample').addEventListener('click', () => { S = clone(SAMPLE); save(); location.hash = 'hoy'; go(); });
 
@@ -545,7 +548,7 @@ function go() {
   closeSheet();
   $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.screen === h));
   device.classList.toggle('in-app', APP.includes(h));
-  $$('.tabbar a').forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + h ? 'page' : 'false'));
+  $$('.tabbar a, .rail a').forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + h ? 'page' : 'false'));
   $$('.flow a').forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + h)));
   phone.scrollTop = 0;
   if (h in CLEAR) setClear(CLEAR[h]);
