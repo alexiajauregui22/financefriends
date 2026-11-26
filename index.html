@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Copiloto · Tu cielo del mes</title>
+<meta name="description" content="Copiloto financiero para almas libres: vive hoy sin arruinar tus metas de mañana.">
+<meta name="theme-color" content="#1A1322">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,100;1,9..144,300..600,100&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="sky" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="sun"></div>
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div><div class="cloud c4"></div><div class="cloud c5"></div>
+  <div class="grain"></div>
+</div>
+
+<div class="layout">
+  <aside class="side">
+    <div class="brand"><svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="19" r="8" fill="#FF7A59"/><path d="M3 22c3-1 5-4 9-4s5 3 9 3 6-2 8-3" fill="none" stroke="#E9E1F6" stroke-width="2" stroke-linecap="round"/></svg>Copiloto</div>
+    <h2 class="serif">Para quien sueña en grande <em>y gasta con el corazón.</em></h2>
+    <nav aria-label="Mapa del flujo">
+      <ol class="flow">
+        <li><a href="#inicio">Bienvenida</a></li>
+        <li><a href="#entrar">Entrar</a></li>
+        <li><a href="#perfil">Tu perfil · 7 pasos</a></li>
+        <li><a href="#calculo">Despejar el cielo</a></li>
+        <li><a href="#hoy">Tu día</a></li>
+        <li><a href="#metas">Tus sueños</a></li>
+        <li><a href="#simular">¿Y si…? (simulador)</a></li>
+        <li><a href="#copiloto">Copiloto</a></li>
+      </ol>
+    </nav>
+    <button class="reset" type="button" id="resetDemo">Reiniciar la demo</button>
+  </aside>
+
+  <div class="device" id="device">
+    <main class="phone" id="phone">
+
+      <!-- 1 · BIENVENIDA -->
+      <section class="screen intro" data-screen="inicio" aria-labelledby="t-inicio">
+        <div class="brand"><svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="19" r="8" fill="#FF7A59"/><path d="M3 22c3-1 5-4 9-4s5 3 9 3 6-2 8-3" fill="none" stroke="#E9E1F6" stroke-width="2" stroke-linecap="round"/></svg>Copiloto</div>
+        <div class="intro-body">
+          <p class="hand kicker" data-rise>para almas libres</p>
+          <h1 id="t-inicio" class="serif display" data-split>Sueñas en grande. <em>Tu presente</em> está un poco nublado.</h1>
+          <p class="lead" data-rise>Vamos a despejarlo juntos. Sin hojas de cálculo y sin culpa: cada mañana un solo número que te dice cuánto puedes vivir hoy sin soltar lo que quieres mañana.</p>
+        </div>
+        <div class="intro-actions" data-rise>
+          <a class="btn magnet" href="#entrar">Empezar mi viaje</a>
+          <a class="link" href="#entrar" style="align-self:center">Ya tengo cuenta</a>
+        </div>
+      </section>
+
+      <!-- 2 · ENTRAR -->
+      <section class="screen" data-screen="entrar" aria-labelledby="t-entrar">
+        <a href="#inicio" class="back" aria-label="Volver"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></a>
+        <h1 id="t-entrar" class="serif title" data-split>Hola, <em>alma viajera.</em></h1>
+        <p class="lead" data-rise>Entra como prefieras. Te toma un minuto y no te pediremos tu clave del banco.</p>
+        <div class="auth" data-rise>
+          <button class="auth-btn" type="button" data-auth>Continuar con Google</button>
+          <button class="auth-btn" type="button" data-auth>Continuar con Apple</button>
+          <button class="auth-btn" type="button" data-auth>Continuar con Microsoft</button>
+        </div>
+        <p class="or hand" data-rise>o con tu correo</p>
+        <form id="fEmail" class="field-col" data-rise style="display:flex;flex-direction:column;gap:16px" novalidate>
+          <label class="field" for="email"><span>Correo</span><input type="email" id="email" autocomplete="email" placeholder="tu@correo.com"></label>
+          <button class="btn soft wide" type="submit">Recibir enlace mágico</button>
+        </form>
+        <div class="lock" data-rise>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC6A8" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="3"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
+          <span>Tus números se cifran en tu dispositivo antes de salir. Ni nosotros podemos verlos.</span>
+        </div>
+      </section>
+
+      <!-- 3 · PERFIL (ONBOARDING) -->
+      <section class="screen" data-screen="perfil" aria-labelledby="t-perfil">
+        <div class="ob-head">
+          <button class="back" type="button" id="prevStep" aria-label="Paso anterior"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+          <div class="moons" id="moons" aria-hidden="true"></div>
+          <span class="fine" id="stepLabel">1 de 7</span>
+        </div>
+        <h1 id="t-perfil" class="sr">Tu perfil financiero</h1>
+
+        <div class="step" data-step="1">
+          <p class="hand">primero lo primero</p>
+          <h2 class="serif title" data-split>¿Cómo te <em>llamamos?</em></h2>
+          <label class="field" for="o-name"><span>Tu nombre</span><input id="o-name" data-bind="name" autocomplete="given-name"></label>
+          <div class="row2">
+            <label class="field" for="o-age"><span>Edad</span><input id="o-age" data-bind="age" inputmode="numeric"></label>
+            <label class="field" for="o-country"><span>País</span>
+              <select id="o-country" data-bind="country"><option>Perú</option><option>México</option><option>Colombia</option><option>Chile</option><option>Argentina</option><option>Ecuador</option><option>España</option><option>Otro</option></select>
+            </label>
+          </div>
+          <div class="field"><span>Moneda</span>
+            <div class="chips" id="currencies" style="margin-top:8px"></div>
+          </div>
+        </div>
+
+        <div class="step" data-step="2" hidden>
+          <p class="hand">de dónde viene tu dinero</p>
+          <h2 class="serif title" data-split>Lo que <em>entra</em> cada mes</h2>
+          <div id="incomeList" style="display:flex;flex-direction:column;gap:14px"></div>
+          <div class="total"><span>Ingreso mensual promedio</span><strong id="incTotal">—</strong></div>
+        </div>
+
+        <div class="step" data-step="3" hidden>
+          <p class="hand">sin juzgarte, prometido</p>
+          <h2 class="serif title" data-split>Tus <em>tarjetas</em></h2>
+          <p class="lead" style="margin-top:-8px">Con el cierre y el pago te avisamos a tiempo y te decimos cuándo conviene comprar.</p>
+          <div class="ccards" id="ccList"></div>
+          <button class="chip add" type="button" id="addCard" style="align-self:flex-start">+ Agregar tarjeta</button>
+        </div>
+
+        <div class="step" data-step="4" hidden>
+          <p class="hand">lo que se paga sí o sí</p>
+          <h2 class="serif title" data-split>Tus gastos <em>fijos</em></h2>
+          <div id="fixList"></div>
+          <div class="row2" style="align-items:end">
+            <label class="field" for="newFix"><span>Agregar otro</span><input id="newFix" placeholder="Ej. Seguro"></label>
+            <button class="chip add" type="button" id="addFix">+ Agregar</button>
+          </div>
+          <div class="total"><span>Compromisos del mes</span><strong id="fixTotal">—</strong></div>
+        </div>
+
+        <div class="step" data-step="5" hidden>
+          <p class="hand">en qué se te va el alma</p>
+          <h2 class="serif title" data-split>Elige tus <em>categorías</em></h2>
+          <p class="lead" style="margin-top:-8px">Sin etiquetas de hombre o mujer: tú decides qué es tuyo. Aparecerán primero al registrar un gasto.</p>
+          <div class="chips" id="catPool"></div>
+          <div class="row2" style="align-items:end">
+            <label class="field" for="newCat"><span>Crea la tuya</span><input id="newCat" placeholder="Ej. Vinilos"></label>
+            <button class="chip add" type="button" id="addCat">+ Crear</button>
+          </div>
+        </div>
+
+        <div class="step" data-step="6" hidden>
+          <p class="hand">lo que te hace levantarte</p>
+          <h2 class="serif title" data-split>Tu <em>sueño grande</em></h2>
+          <div class="presets" id="presets"></div>
+          <label class="field" for="g-name"><span>Nombre del sueño</span><input id="g-name" data-goal="name"></label>
+          <div class="row3">
+            <label class="field" for="g-cost"><span>Cuesta</span><input id="g-cost" data-goal="cost" inputmode="decimal"></label>
+            <label class="field" for="g-saved"><span>Ya tengo</span><input id="g-saved" data-goal="saved" inputmode="decimal"></label>
+            <label class="field" for="g-date"><span>Para</span><input id="g-date" data-goal="date" type="month"></label>
+          </div>
+          <div class="monthly"><span>Para llegar a tiempo, aparta</span><strong id="gMonthly">—</strong><span id="gMonths"></span></div>
+        </div>
+
+        <div class="step" data-step="7" hidden>
+          <p class="hand">la pregunta honesta</p>
+          <h2 class="serif title" data-split>Cuando ves algo que te <em>encanta…</em></h2>
+          <div id="styles" style="display:flex;flex-direction:column;gap:10px"></div>
+          <p class="fine">Así ajusto mi tono contigo. Lo puedes cambiar cuando quieras.</p>
+        </div>
+
+        <div class="ob-nav">
+          <button class="btn wide magnet" type="button" id="nextStep">Seguir</button>
+        </div>
+      </section>
+
+      <!-- 4 · CÁLCULO -->
+      <section class="screen calc" data-screen="calculo" aria-labelledby="t-calc">
+        <h1 id="t-calc" class="serif title" data-split>Despejando <em>tu cielo…</em></h1>
+        <ol class="calc-lines" id="calcLines">
+          <li>Leyendo de dónde viene tu dinero</li>
+          <li>Apartando lo que no se negocia</li>
+          <li>Guardando la parte de tu sueño</li>
+          <li>Repartiendo el resto entre los días que quedan</li>
+        </ol>
+        <div class="calc-result" id="calcResult" hidden>
+          <p class="hand kicker" id="calcHi">listo</p>
+          <div class="sunwrap" style="margin:0 auto"><div class="sun-core"><span>Hoy puedes gastar</span><strong id="calcNum">—</strong><span class="sub" id="calcSub"></span></div></div>
+          <p class="lead" id="calcExplain" style="max-width:none"></p>
+          <a class="btn wide magnet" href="#hoy">Ver mi día</a>
+        </div>
+      </section>
+
+      <!-- 5 · HOY -->
+      <section class="screen" data-screen="hoy" aria-labelledby="t-hoy">
+        <h1 id="t-hoy" class="sr">Tu día</h1>
+        <div id="hoyBody" style="display:flex;flex-direction:column;gap:22px"></div>
+      </section>
+
+      <!-- 6 · METAS -->
+      <section class="screen" data-screen="metas" aria-labelledby="t-metas">
+        <p class="hand kicker">tu ruta</p>
+        <h1 id="t-metas" class="serif title" data-split>Tus <em>sueños</em>, en orden de llegada</h1>
+        <p class="lead">El sueño principal recibe tu ahorro cada mes. Los demás esperan en el horizonte y avanzan cuando llegue su turno.</p>
+        <div class="route" id="route"></div>
+        <details class="newgoal" id="newGoal">
+          <summary><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC6A8" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nuevo sueño</summary>
+          <label class="field" for="ng-name"><span>Nombre</span><input id="ng-name" placeholder="Ej. Festival en Barcelona"></label>
+          <div class="row2">
+            <label class="field" for="ng-cost"><span>Cuesta</span><input id="ng-cost" inputmode="decimal"></label>
+            <label class="field" for="ng-date"><span>Para</span><input id="ng-date" type="month"></label>
+          </div>
+          <button class="btn soft" type="button" id="ngSave">Guardar en el horizonte</button>
+        </details>
+      </section>
+
+      <!-- 7 · SIMULADOR -->
+      <section class="screen" data-screen="simular" aria-labelledby="t-sim">
+        <p class="hand kicker">antes de comprar</p>
+        <h1 id="t-sim" class="serif title" data-split>¿Y si <em>lo hago?</em></h1>
+        <div class="chips" id="simPresets"></div>
+        <label class="field" for="simAmount"><span>O escribe un monto</span><input id="simAmount" inputmode="decimal" placeholder="0"></label>
+        <div class="verdict" id="verdict"></div>
+        <div class="impacts" id="impacts"></div>
+        <p class="fine" id="simNote"></p>
+      </section>
+
+      <!-- 8 · COPILOTO -->
+      <section class="screen" data-screen="copiloto" aria-labelledby="t-cop">
+        <p class="hand kicker">pregúntame lo que sea</p>
+        <h1 id="t-cop" class="serif title" data-split>Tu <em>copiloto</em></h1>
+        <div class="chat" id="chat" aria-live="polite"></div>
+        <div class="sugs" id="sugs"></div>
+        <form class="ask" id="askForm">
+          <label class="sr" for="askInput">Escribe tu pregunta</label>
+          <input id="askInput" placeholder="¿Puedo comprar…?" autocomplete="off">
+          <button type="submit" aria-label="Enviar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1322" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </form>
+        <p class="fine">Respuestas de ejemplo calculadas con tus datos. La IA real se conecta desde el backend.</p>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Secciones">
+      <a href="#hoy"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Hoy</a>
+      <a href="#metas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 21V10a7 7 0 0114 0v11"/><path d="M3 21h18"/></svg>Sueños</a>
+      <span class="gap" aria-hidden="true"></span>
+      <a href="#simular"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/></svg>¿Y si…?</a>
+      <a href="#copiloto"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/></svg>Copiloto</a>
+    </nav>
+    <button class="fab" type="button" id="fab" aria-label="Registrar gasto"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+
+    <div class="scrim" id="scrim"></div>
+    <form class="sheet" id="sheet" aria-labelledby="t-sheet" aria-hidden="true">
+      <div class="grab" aria-hidden="true"></div>
+      <h2 id="t-sheet">¿En qué se fue?</h2>
+      <label class="amount" for="exAmount"><span id="exCur">S/</span><input id="exAmount" inputmode="decimal" placeholder="0" autocomplete="off"></label>
+      <div class="chips" id="exCats"></div>
+      <label class="field" for="exNote"><span>Comentario (opcional)</span><input id="exNote" placeholder="Ej. Café con Lu"></label>
+      <p class="preview" id="exPreview" aria-live="polite"></p>
+      <button class="btn wide" type="submit">Guardar gasto</button>
+    </form>
+    <div class="toast" id="toast" role="status"><span id="toastText"></span><button type="button" id="toastUndo">Deshacer</button></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
