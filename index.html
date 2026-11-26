@@ -10,6 +10,13 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..600,100;1,9..144,300..600,100&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Copiloto">
 </head>
 <body>
 <div class="sky" aria-hidden="true">
@@ -33,9 +40,10 @@
         <li><a href="#metas">Tus sueños</a></li>
         <li><a href="#simular">¿Y si…? (simulador)</a></li>
         <li><a href="#copiloto">Copiloto</a></li>
+        <li><a href="#historial">Historial y ajustes</a></li>
       </ol>
     </nav>
-    <button class="reset" type="button" id="resetDemo">Reiniciar la demo</button>
+    <div style="display:flex;flex-direction:column;align-items:flex-start"><button class="reset" type="button" id="loadSample">Ver con datos de ejemplo</button><button class="reset" type="button" id="resetDemo">Borrar todo y empezar de cero</button></div>
   </aside>
 
   <div class="device" id="device">
@@ -124,6 +132,7 @@
             <button class="chip add" type="button" id="addFix">+ Agregar</button>
           </div>
           <div class="total"><span>Compromisos del mes</span><strong id="fixTotal">—</strong></div>
+          <label class="field" for="o-spent"><span>Y en el día a día, ¿cuánto llevas gastado este mes? (aproximado, sin contar los fijos)</span><input id="o-spent" inputmode="decimal" placeholder="0"></label>
         </div>
 
         <div class="step" data-step="5" hidden>
@@ -226,6 +235,30 @@
         </form>
         <p class="fine">Respuestas de ejemplo calculadas con tus datos. La IA real se conecta desde el backend.</p>
       </section>
+      <!-- 9 · HISTORIAL -->
+      <section class="screen" data-screen="historial" aria-labelledby="t-hist">
+        <p class="hand kicker">tu bitácora</p>
+        <h1 id="t-hist" class="serif title" data-split>Historial <em>y ajustes</em></h1>
+        <div id="histSummary"></div>
+        <div id="histList" style="display:flex;flex-direction:column;gap:14px"></div>
+        <div class="sec-t"><h2>Diario de prueba</h2></div>
+        <p class="lead" style="margin-top:-8px">Anota lo que te gusta, lo que confunde o lo que falta. Al final de la semana copia todo y pégalo en el chat.</p>
+        <form class="ask" id="noteForm" style="position:static">
+          <label class="sr" for="noteInput">Nueva nota</label>
+          <input id="noteInput" placeholder="Ej. No entendí el número del sol" autocomplete="off">
+          <button type="submit" aria-label="Guardar nota"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A1322" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        </form>
+        <ul class="notes" id="notes"></ul>
+        <button class="btn soft" type="button" id="copyNotes">Copiar mi diario</button>
+        <div class="sec-t"><h2>Tus datos</h2></div>
+        <p class="fine" style="font-size:14px">Todo se guarda solo en este navegador: nadie más lo ve, ni siquiera yo. Si borras los datos del navegador o cambias de teléfono, se pierde, así que descarga un respaldo de vez en cuando.</p>
+        <div class="chips">
+          <a class="chip" href="#perfil">Editar mi perfil</a>
+          <button class="chip" type="button" id="exportData">Descargar respaldo</button>
+          <label class="chip" for="importData">Importar respaldo<input type="file" id="importData" accept="application/json,.json" class="sr"></label>
+          <button class="chip" type="button" id="wipeData">Borrar todo</button>
+        </div>
+      </section>
     </main>
 
     <nav class="tabbar" aria-label="Secciones">
@@ -243,7 +276,10 @@
       <h2 id="t-sheet">¿En qué se fue?</h2>
       <label class="amount" for="exAmount"><span id="exCur">S/</span><input id="exAmount" inputmode="decimal" placeholder="0" autocomplete="off"></label>
       <div class="chips" id="exCats"></div>
-      <label class="field" for="exNote"><span>Comentario (opcional)</span><input id="exNote" placeholder="Ej. Café con Lu"></label>
+      <div class="row2">
+        <label class="field" for="exNote"><span>Comentario (opcional)</span><input id="exNote" placeholder="Ej. Café con Lu"></label>
+        <label class="field" for="exDate"><span>Fecha</span><input id="exDate" type="date"></label>
+      </div>
       <p class="preview" id="exPreview" aria-live="polite"></p>
       <button class="btn wide" type="submit">Guardar gasto</button>
     </form>

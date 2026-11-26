@@ -21,8 +21,9 @@ const monthName = s => { if (!s) return '—'; const [y, m] = s.split('-').map(N
 const monthsLeft = s => { if (!s) return 1; const [y, m] = s.split('-').map(Number); return Math.max(1, (y - Y) * 12 + (m - 1 - M)); };
 
 /* ---------- estado ---------- */
-const KEY = 'copiloto-app-v1';
-const DEF = {
+const KEY = 'copiloto-app-v2';
+const MKEY = ym(Y, M);
+const SAMPLE = {
   name: 'Andrea', age: '29', country: 'Perú', currency: 'S/',
   income: { sueldo: 4500, bonos: 500, freelance: 800, negocio: 0, otros: 0 },
   cards: [
@@ -44,12 +45,23 @@ const DEF = {
     { v: 12, cat: 'Comida', note: 'Café de la mañana', day: todayKey, t: 1 },
     { v: 18, cat: 'Transporte', note: 'Taxi', day: todayKey, t: 2 }
   ],
-  chat: []
+  chat: [], notes: [],
+  startSpent: Math.round(52 * (d - 1)), startMonth: MKEY, onboarded: true, sample: true
+};
+const EMPTY = {
+  name: '', age: '', country: 'Perú', currency: 'S/',
+  income: { sueldo: 0, bonos: 0, freelance: 0, negocio: 0, otros: 0 },
+  cards: [],
+  fixed: ['Alquiler', 'Internet', 'Luz y agua', 'Celular', 'Streaming', 'Gimnasio', 'Educación'].map(n => ({ n, v: 0, on: false })),
+  cats: ['Comida', 'Transporte', 'Salidas', 'Delivery'],
+  goals: [], style: 'impulso', expenses: [], chat: [], notes: [],
+  startSpent: 0, startMonth: MKEY, onboarded: false
 };
 const clone = o => JSON.parse(JSON.stringify(o));
 let S = null;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
-if (!S || !S.income || !Array.isArray(S.goals)) S = clone(DEF);
+if (!S || !S.income || !Array.isArray(S.goals)) S = clone(EMPTY);
+S.notes = S.notes || []; S.chat = S.chat || [];
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 const money = n => `${S.currency} ${Math.round(n).toLocaleString('es-PE')}`;
 
@@ -79,14 +91,16 @@ function calc() {
   const active = goals.filter(g => g.active);
   const contrib = active.reduce((a, g) => a + g.monthly, 0);
   const free = avail - contrib;
-  const past = Math.max(0, free * (d - 1) / D * 1.08); // muestra: lo gastado antes de hoy
-  const todayList = S.expenses.filter(e => e.day === todayKey);
+  const monthExp = S.expenses.filter(e => String(e.day).startsWith(MKEY));
+  const startSpent = S.startMonth === MKEY ? num(S.startSpent) : 0;
+  const past = startSpent + monthExp.filter(e => e.day < todayKey).reduce((a, e) => a + num(e.v), 0);
+  const todayList = monthExp.filter(e => e.day === todayKey);
   const todaySpent = todayList.reduce((a, e) => a + num(e.v), 0);
   const allowance = Math.max(0, (free - past) / left);
   const restToday = allowance - todaySpent;
   const monthRest = free - past - todaySpent;
   const tomorrow = left > 1 ? Math.max(0, monthRest / (left - 1)) : null;
-  return { income, fixed, avail, goals, active, contrib, free, past, todayList, todaySpent, allowance, restToday, monthRest, tomorrow };
+  return { monthExp, startSpent, income, fixed, avail, goals, active, contrib, free, past, todayList, todaySpent, allowance, restToday, monthRest, tomorrow };
 }
 function impact(X) {
   const c = calc();
@@ -185,12 +199,15 @@ function r4() {
   $('#fixList').innerHTML = S.fixed.map((f, i) => `<div class="fix ${f.on ? '' : 'off'}"><button type="button" class="chip" data-fix="${i}" aria-pressed="${f.on}">${esc(f.n)}</button><span></span>
     <label class="sr" for="fx${i}">Monto de ${esc(f.n)}</label><input id="fx${i}" data-fixv="${i}" inputmode="decimal" value="${num(f.v) || ''}" placeholder="0"></div>`).join('');
   $('#fixTotal').textContent = money(calc().fixed);
+  $('#o-spent').value = S.startMonth === MKEY ? (num(S.startSpent) || '') : '';
 }
 function r5() {
   const all = [...new Set([...POOL, ...S.cats])];
   $('#catPool').innerHTML = all.map(c => `<button type="button" class="chip" data-cat="${esc(c)}" aria-pressed="${S.cats.includes(c)}">${esc(c)}</button>`).join('');
 }
+function ensureGoal() { if (!S.goals.length) S.goals.push({ name: '', kind: 'Otro', cost: 0, saved: 0, date: ym(Y + 1, M), active: true }); }
 function r6() {
+  ensureGoal();
   const g = S.goals[0];
   $('#presets').innerHTML = PRESETS.map(p => `<button type="button" class="preset" data-preset="${p.kind}" aria-pressed="${g.kind === p.kind}"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p.icon}</svg>${p.label}</button>`).join('');
   $$('[data-goal]').forEach(i => { const k = i.dataset.goal; i.value = (k === 'cost' || k === 'saved') ? (num(g[k]) || '') : (g[k] || ''); });
@@ -210,6 +227,7 @@ perfil.addEventListener('input', e => {
   if (t.dataset.inc) { S.income[t.dataset.inc] = num(t.value); $('#incTotal').textContent = money(calc().income); }
   if (t.dataset.card) { const c = S.cards[t.dataset.card]; c[t.dataset.f] = t.dataset.f === 'bank' ? t.value : num(t.value); const host = t.closest('.cc-fields').previousElementSibling; host.outerHTML = ccHTML(c, 0, false); }
   if (t.dataset.fixv) { S.fixed[t.dataset.fixv].v = num(t.value); $('#fixTotal').textContent = money(calc().fixed); }
+  if (t.id === 'o-spent') { S.startSpent = num(t.value); S.startMonth = MKEY; }
   if (t.dataset.goal) { const k = t.dataset.goal; S.goals[0][k] = (k === 'cost' || k === 'saved') ? num(t.value) : t.value; r6calc(); }
   save();
 });
@@ -236,7 +254,12 @@ perfil.addEventListener('click', e => {
   save();
 });
 $('#nextStep').addEventListener('click', () => {
-  if (step === STEPS) { S.onboarded = true; save(); location.hash = 'calculo'; return; }
+  if (step === 1 && !String(S.name || '').trim()) { $('#o-name').focus(); return; }
+  if (step === STEPS) {
+    S.goals = S.goals.filter(g => num(g.cost) > 0);
+    if (S.goals.length && !S.goals.some(g => g.active)) S.goals[0].active = true;
+    S.onboarded = true; save(); location.hash = 'calculo'; return;
+  }
   step++; renderStep();
 });
 $('#prevStep').addEventListener('click', () => { if (step === 1) { location.hash = 'entrar'; return; } step--; renderStep(); });
@@ -297,7 +320,8 @@ function renderHoy() {
       ? `<ul>${c.todayList.slice().reverse().map(e => `<li><span>${esc(e.note || e.cat)}<small>${esc(e.cat)}</small></span><b>${money(num(e.v))}</b></li>`).join('')}</ul><div class="sum"><span>Total de hoy</span><span>${money(c.todaySpent)}</span></div>`
       : '<p class="empty">nada todavía. un día liviano.</p>'}</div>
     <a class="bubble" href="#copiloto" data-reveal><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC6A8" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3l2 5.5 5.5 2-5.5 2L12 18l-2-5.5L4.5 10.5l5.5-2z"/></svg><span>${tip}</span></a>
-    <p class="fine">Datos de ejemplo: lo gastado antes de hoy se estima para la demo.</p>`;
+    <a class="bubble" href="#historial" style="background:rgba(233,225,246,.07)" data-reveal><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFC6A8" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Historial, diario de prueba y respaldo de tus datos</span></a>
+    ${S.sample ? '<p class="fine">Estás viendo datos de ejemplo. Reinicia para usar los tuyos.</p>' : ''}`;
   setClear(over ? .55 : 1);
   countUp($('#sunNum'), Math.abs(c.restToday));
   drawRing($('#ringUse'), used);
@@ -311,14 +335,14 @@ function renderMetas() {
       <span class="kind">${esc(g.kind)} · ${g.active ? 'recibe tu ahorro' : 'en el horizonte'}</span><h3>${esc(g.name)}</h3>
       <div class="nums"><span>${money(num(g.saved))} de ${money(num(g.cost))}</span><span>${monthName(g.date)}</span></div>
       <div class="nums"><span>${g.active ? `Apartas ${money(g.monthly)} al mes` : `Necesitaría ${money(g.monthly)} al mes`}</span></div>
-      <div class="tools">${g.active ? '' : `<button type="button" class="mini" data-main="${i}">Hacer principal</button>`}<button type="button" class="mini" data-add="${i}">+ Abonar ${money(100)}</button></div>
+      <div class="tools">${g.active ? '' : `<button type="button" class="mini" data-main="${i}">Hacer principal</button>`}<label class="sr" for="ab${i}">Monto a abonar a ${esc(g.name)}</label><input class="abono" id="ab${i}" inputmode="decimal" placeholder="Monto"><button type="button" class="mini" data-add="${i}">Abonar</button></div>
     </div></div>`).join('');
   setClear(1);
 }
 $('#route').addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.main) { S.goals.forEach(g => { g.active = false; }); const [g] = S.goals.splice(Number(b.dataset.main), 1); g.active = true; S.goals.unshift(g); }
-  if (b.dataset.add) { const g = S.goals[Number(b.dataset.add)]; g.saved = num(g.saved) + 100; toast(`Abonaste ${money(100)} a ${g.name}`); }
+  if (b.dataset.add) { const v = num($(`#ab${b.dataset.add}`).value); if (!v) { $(`#ab${b.dataset.add}`).focus(); return; } const g = S.goals[Number(b.dataset.add)]; g.saved = num(g.saved) + v; toast(`Abonaste ${money(v)} a ${g.name}`); }
   save(); renderMetas();
 });
 $('#ngSave').addEventListener('click', () => {
@@ -405,7 +429,7 @@ let exCat = null;
 function openSheet() {
   exCat = S.cats[0] || 'Comida';
   $('#exCur').textContent = S.currency;
-  $('#exAmount').value = ''; $('#exNote').value = '';
+  $('#exAmount').value = ''; $('#exNote').value = ''; $('#exDate').value = todayKey; $('#exDate').max = todayKey;
   const cats = [...S.cats, ...POOL.filter(c => !S.cats.includes(c)).slice(0, 3)];
   $('#exCats').innerHTML = cats.map(c => `<button type="button" class="chip" data-ex="${esc(c)}" aria-pressed="${c === exCat}">${esc(c)}</button>`).join('');
   preview();
@@ -428,9 +452,9 @@ $('#sheet').addEventListener('submit', e => {
   e.preventDefault();
   const v = num($('#exAmount').value); if (!v) { $('#exAmount').focus(); return; }
   lastT = Date.now();
-  S.expenses.push({ v, cat: exCat, note: $('#exNote').value.trim(), day: todayKey, t: lastT });
+  S.expenses.push({ v, cat: exCat, note: $('#exNote').value.trim(), day: ($('#exDate').value && $('#exDate').value <= todayKey) ? $('#exDate').value : todayKey, t: lastT });
   save(); closeSheet();
-  if (location.hash !== '#hoy') location.hash = 'hoy'; else renderHoy();
+  if (location.hash === '#historial') renderHist(); else if (location.hash !== '#hoy') location.hash = 'hoy'; else renderHoy();
   toast(`Guardado: ${money(v)} en ${exCat}`, true);
 });
 
@@ -447,16 +471,77 @@ $('#toastUndo').addEventListener('click', () => {
 });
 
 /* ---------- reiniciar ---------- */
-$('#resetDemo').addEventListener('click', () => { S = clone(DEF); save(); step = 1; location.hash = 'inicio'; go(); });
+function armReset(btn, label) {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.armed) { S = clone(EMPTY); save(); step = 1; btn.textContent = label; delete btn.dataset.armed; location.hash = 'inicio'; go(); return; }
+    btn.dataset.armed = '1'; btn.textContent = 'Se borra todo. Toca otra vez para confirmar';
+    setTimeout(() => { btn.textContent = label; delete btn.dataset.armed; }, 4000);
+  });
+}
+armReset($('#resetDemo'), 'Borrar todo y empezar de cero');
+armReset($('#wipeData'), 'Borrar todo');
+$('#loadSample').addEventListener('click', () => { S = clone(SAMPLE); save(); location.hash = 'hoy'; go(); });
+
+/* ---------- historial, diario y respaldo ---------- */
+function dayLabel(k) {
+  const [y, m, dd] = k.split('-').map(Number);
+  const dt = new Date(y, m - 1, dd), diff = Math.round((new Date(Y, M, d) - dt) / 864e5);
+  return diff === 0 ? 'Hoy' : diff === 1 ? 'Ayer' : `${dd} de ${MONTHS[m - 1]}`;
+}
+function renderHist() {
+  const c = calc();
+  const total = c.startSpent + c.monthExp.reduce((a, e) => a + num(e.v), 0);
+  const byCat = {}; c.monthExp.forEach(e => { byCat[e.cat] = (byCat[e.cat] || 0) + num(e.v); });
+  const cats = Object.entries(byCat).sort((a, b) => b[1] - a[1]); const max = cats.length ? cats[0][1] : 1;
+  $('#histSummary').innerHTML = `<p class="flowline">En ${MONTHS[M]} llevas <b>${money(total)}</b> en gastos del día a día${c.startSpent ? `, contando los ${money(c.startSpent)} que anotaste al empezar` : ''}. Te quedan <b>${money(Math.max(0, c.monthRest))}</b> libres.</p>
+    ${cats.length ? `<div class="impacts" style="margin-top:18px">${cats.map(([k, v]) => `<div class="impact"><strong>${esc(k)}</strong><em>${money(v)}</em><div class="bar"><i style="width:${(v / max * 100).toFixed(1)}%"></i></div></div>`).join('')}</div>` : ''}`;
+  const all = [...S.expenses].sort((a, b) => (b.day > a.day ? 1 : b.day < a.day ? -1 : b.t - a.t)).slice(0, 120);
+  const days = [...new Set(all.map(e => e.day))];
+  $('#histList').innerHTML = days.length ? days.map(k => {
+    const items = all.filter(e => e.day === k);
+    return `<h3 class="dayh">${dayLabel(k)}</h3><div class="receipt"><ul>${items.map(e => `<li><span>${esc(e.note || e.cat)}<small>${esc(e.cat)}</small></span><span style="display:flex;gap:10px;align-items:center"><b>${money(num(e.v))}</b><button type="button" class="mini" data-del="${e.t}" aria-label="Borrar ${esc(e.note || e.cat)}">Borrar</button></span></li>`).join('')}</ul><div class="sum"><span>Total</span><span>${money(items.reduce((a, e) => a + num(e.v), 0))}</span></div></div>`;
+  }).join('') : '<p class="lead">Aún no registras gastos. Usa el botón + cada vez que gastes algo.</p>';
+  $('#notes').innerHTML = S.notes.length ? S.notes.map((n, i) => `<li><span class="hand">${dayLabel(n.d)}</span><span>${esc(n.t)}</span><button type="button" class="mini" data-delnote="${i}" aria-label="Borrar nota">×</button></li>`).join('') : '<li class="fine">Tu diario está vacío.</li>';
+  setClear(1);
+}
+$('#histList').addEventListener('click', e => {
+  const b = e.target.closest('[data-del]'); if (!b) return;
+  S.expenses = S.expenses.filter(x => String(x.t) !== b.dataset.del); save(); renderHist(); toast('Gasto borrado');
+});
+$('#noteForm').addEventListener('submit', e => {
+  e.preventDefault(); const v = $('#noteInput').value.trim(); if (!v) return;
+  S.notes.push({ d: todayKey, t: v }); $('#noteInput').value = ''; save(); renderHist();
+});
+$('#notes').addEventListener('click', e => { const b = e.target.closest('[data-delnote]'); if (!b) return; S.notes.splice(Number(b.dataset.delnote), 1); save(); renderHist(); });
+$('#copyNotes').addEventListener('click', () => {
+  const txt = S.notes.map(n => `${n.d}: ${n.t}`).join('\n') || '(sin notas)';
+  if (navigator.clipboard) navigator.clipboard.writeText(txt).then(() => toast('Diario copiado. Pégamelo en el chat')).catch(() => toast('No pude copiar. Mantén presionado el texto para copiarlo'));
+});
+$('#exportData').addEventListener('click', () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' }));
+  a.download = `copiloto-respaldo-${todayKey}.json`; document.body.append(a); a.click(); a.remove();
+  toast('Respaldo descargado');
+});
+$('#importData').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try { const data = JSON.parse(r.result); if (!data.income || !Array.isArray(data.goals) || !Array.isArray(data.expenses)) throw 0; S = data; S.notes = S.notes || []; S.chat = S.chat || []; save(); toast('Respaldo cargado'); go(); }
+    catch (err) { toast('Ese archivo no es un respaldo de Copiloto'); }
+  };
+  r.readAsText(f); e.target.value = '';
+});
 
 /* ---------- rutas ---------- */
-const SCREENS = ['inicio', 'entrar', 'perfil', 'calculo', 'hoy', 'metas', 'simular', 'copiloto'];
-const APP = ['hoy', 'metas', 'simular', 'copiloto'];
+const SCREENS = ['inicio', 'entrar', 'perfil', 'calculo', 'hoy', 'metas', 'simular', 'copiloto', 'historial'];
+const APP = ['hoy', 'metas', 'simular', 'copiloto', 'historial'];
 const CLEAR = { inicio: 0, entrar: .08 };
-const RENDER = { perfil: renderStep, calculo: renderCalc, hoy: renderHoy, metas: renderMetas, simular: renderSim, copiloto: renderChat };
+const RENDER = { perfil: renderStep, calculo: renderCalc, hoy: renderHoy, metas: renderMetas, simular: renderSim, copiloto: renderChat, historial: renderHist };
 function go() {
   let h = location.hash.slice(1);
-  if (!SCREENS.includes(h)) h = 'inicio';
+  if (!SCREENS.includes(h)) h = S.onboarded ? 'hoy' : 'inicio';
+  if (APP.includes(h) && !S.onboarded) h = 'inicio';
   closeSheet();
   $$('.screen').forEach(s => s.classList.toggle('on', s.dataset.screen === h));
   device.classList.toggle('in-app', APP.includes(h));
